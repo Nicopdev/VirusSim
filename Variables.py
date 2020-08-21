@@ -1,12 +1,13 @@
 import numpy as np
 
-# Duration of the illness
+# Duration of the illness
 min_days_ill = 1
 max_days_ill = 3
 
 # Distance without mask
 max_distance = 1
 infect_probability = 0.85
+room_dimensions = 5
 
 # Death probability
 death_probability = .3
@@ -31,23 +32,40 @@ positions = [
 ]
 
 class Person():
-    def __init__(self):
+    def __repr__(self):
+        return str(self.inx)
+
+    def __init__(self, inx):
         # STATE
+        self.inx = inx+1
         self.state = 0 # 0 = Good, 1 = Infected, 2 = Recovered, 3 = Dead, 4 = Just infected (can't infect others in that day)
         self.wears_mask = np.random.rand() <= prob_wear_mask # Constant for the whole simulation
-        self.max_days_ill = np.random.randint(min_days_ill, max_days_ill+1)
+        self.max_days_ill = np.random.randint(min_days_ill, max_days_ill+1) # Constant for the whole simulation
 
-        # DAILY stats
+        # DAILY stats
         self.days_ill = 0
         self.current_hangout_duration = 0 # Set at the start of each day
         self.time_away = 0 # In hours, the time spent away from home today
 
         # HOURLY stats
-        self.current_position = 0 # First position is always home
+        self.current_position = 0 # First position is always home
+
+    def goHome(self):
+        if self in places[self.current_position].people:
+            places[self.current_position].people.remove(self)
+
+        for arr in places[self.current_position].matrix:
+            if self in arr:
+                arr.remove(self)
+                arr.append(0)
+
+        self.current_position = 0
+        places[0].people.append(self)
 
     def move(self, newPosition):
 
-        places[self.current_position].people.remove(self)
+        if self in places[self.current_position].people:
+            places[self.current_position].people.remove(self)
 
         for arr in places[self.current_position].matrix:
             if self in arr:
