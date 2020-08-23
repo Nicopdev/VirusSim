@@ -2,9 +2,6 @@ import numpy as np
 import Variables as v
 from Variables import Person
 
-# ONE DAY SIM
-# We will simulate only one day of Virus spreading
-
 # Create the population
 population = [Person(i) for i in range(v.population_size)] # There is a population of population_size (currently set to 100) people (see Person on the Variables file to access the class)
 
@@ -26,12 +23,10 @@ def move():
                     if np.random.rand() < 0.5: # 50% of the time
                         person.time_away += 1
                         person.move(np.random.choice(v.places[1:]).index) # Move the person to somewhere else (indexes from 1 to max)
-
                 else: # If the person was not at home
                     if np.random.rand() < 0.5: # 50% of the time
                         person.time_away += 1
                         person.move(np.random.choice(v.places[1:]).index) # Move the person to somewhere else (indexes from 1 to max)
-
 def infect():
     global infected_count
     for place in v.places[1:]: # For every place (home excluded)
@@ -69,31 +64,51 @@ def infect():
 def hour():
     move()
     infect()
+    print("INFECTED COUNT")
+    print(infected_count - dead_count - recovered_count)
 
 def kill():
-  	return
+    global dead_count
+    for person in population:
+        if person.state == 1 or person.state == 4:
+            if np.random.rand() < v.death_probability:
+                person.state = 3
+                person.goHome()
+                dead_count += 1
 
 def recover():
-  	return
+    global recovered_count
+    for person in population:
+        if person.state == 1:
+            if person.max_days_ill == person.days_ill:
+                person.state = 2
+                person.goHome()
+                recovered_count += 1
 
 def day():
   	# BEGINNING OF THE DAY
     for person in population: # For every person in our population
         person.current_hangout_duration = np.random.randint(v.min_hangout_duration, v.max_hangout_duration) # Change his hangout duration value (how much time he can stay out before going back home)
         person.time_away = 0 # Reset how much time the person spent outside
+        if person.state == 4 or person.state == 1:
+            person.days_ill += 1
 
         if person.state == 4: # If someone yesterday was infected
             person.state = 1 # Today he will be able to infect other people
 
     for i in range(v.sim_day_duration): # (sim_day_duration is currently set to 16)
         hour()
-        print "Hour inx:", i
-        print "home"
+        print("Hour inx: " + str(i))
+        print("home")
         print v.places[0].people
         for place in v.places[1:]:
             print(place.name)
-            print(place.matrix)
-        print("\n\n\n")
+            print(place.matrix[0])
+            print(place.matrix[1])
+            print(place.matrix[2])
+            print(place.matrix[3])
+            print(place.matrix[4])
+        print("\n\n")
 
     for person in population:
         person.goHome()
@@ -103,12 +118,26 @@ def day():
     kill() # First kill 3% of the infected people
     recover() # Then recover whoever has reached their max days
 
+population[0].state = 1
+population[0].max_days_ill = v.sim_duration_days
+for d in range(v.sim_duration_days):
+    day()
 
-day()
-
-print "home"
-print v.places[0].people
+print("home")
+print(v.places[0].people)
 
 for place in v.places[1:]:
     print(place.name)
-    print(place.matrix)
+    print(place.matrix[0])
+    print(place.matrix[1])
+    print(place.matrix[2])
+    print(place.matrix[3])
+    print(place.matrix[4])
+
+print(infected_count - dead_count - recovered_count)
+print(dead_count)
+print(recovered_count)
+print(v.population_size - infected_count)
+
+#for person in population:
+#    print(person.state)
