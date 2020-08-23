@@ -1,5 +1,7 @@
 import numpy as np
 
+# TODO: implement a "min days alive" variable: too many people die the first days and don't let the simulation continue nominally
+
 # Duration of the illness
 min_days_ill = 1
 max_days_ill = 3
@@ -10,14 +12,14 @@ infect_probability = 0.85
 room_dimensions = 5
 
 # Death probability
-death_probability = .3
+death_probability = 0.1
 
 # Probability of people wearing a wearing a mask
 prob_wear_mask = 0.8
 infect_probability_mask = 0.20
 distance_with_mask = 5
 
-population_size = 100
+population_size = 125
 hangout_probability = 0.3
 
 sim_duration_days = 7
